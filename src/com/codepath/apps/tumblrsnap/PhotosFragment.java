@@ -36,14 +36,7 @@ public class PhotosFragment extends Fragment {
 	private static final int CROP_PHOTO_CODE = 3;
 	private static final int POST_PHOTO_CODE = 4;
 	
-	private String photoUri;
 	private Bitmap photoBitmap;
-	
-	@Override
-	public void onHiddenChanged(boolean hidden) {
-		Log.d("DEBUG", "hello");
-		super.onHiddenChanged(hidden);
-	}
 	
 	@Override 
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -72,17 +65,12 @@ public class PhotosFragment extends Fragment {
 		switch(item.getItemId()) {
 			case R.id.action_take_photo:
 			{
-				Intent i = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-				File photoFile = getOutputMediaFile(); // create a file to save the image
-			    i.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile)); // set the image file name
-			    photoUri = photoFile.getAbsolutePath();
-			    startActivityForResult(i, TAKE_PHOTO_CODE);
+				// Take the user to the camera app
 			}
 			break;
 			case R.id.action_use_existing:
 			{
-				Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-				startActivityForResult(i, PICK_PHOTO_CODE);
+				// Take the user to the gallery app
 			}
 			break;
 		}
@@ -93,10 +81,15 @@ public class PhotosFragment extends Fragment {
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
 		if (resultCode == Activity.RESULT_OK) {
 			if (requestCode == TAKE_PHOTO_CODE) {
-				cropPhoto();
+				// Extract the photo that was just taken by the camera
+				
+				// Call the method below to trigger the cropping
+				// cropPhoto(photoUri)
 			} else if (requestCode == PICK_PHOTO_CODE) {
-	            photoUri = getFileUri(data.getData());
-	            cropPhoto();
+				// Extract the photo that was just picked from the gallery
+				
+				// Call the method below to trigger the cropping
+				// cropPhoto(photoUri)
 			} else if (requestCode == CROP_PHOTO_CODE) {
 				photoBitmap = data.getParcelableExtra("data");
 				startPreviewPhotoActivity();
@@ -132,11 +125,11 @@ public class PhotosFragment extends Fragment {
 		});
 	}
 	
-	private void cropPhoto() {
+	private void cropPhoto(Uri photoUri) {
 		//call the standard crop action intent (the user device may not support it)
 		Intent cropIntent = new Intent("com.android.camera.action.CROP");
 		//indicate image type and Uri
-		cropIntent.setDataAndType(Uri.fromFile(new File(photoUri)), "image/*");
+		cropIntent.setDataAndType(photoUri, "image/*");
 		//set crop properties
 		cropIntent.putExtra("crop", "true");
 		//indicate aspect of desired crop
